@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rest_api_app1/models/note_insert.dart';
 import 'package:rest_api_app1/services/notes_service.dart';
+import 'package:rest_api_app1/utils/string_validators.dart';
 
 class NoteModify extends StatefulWidget {
   final String noteID;
@@ -160,24 +161,8 @@ class _NoteModifyState extends State<NoteModify> {
                                     icon: Icon(Icons.text_fields),
                                     hintText: 'Enter note title',
                                     labelText: 'Title'),
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    popUp('Note title has not been entered');
-                                  } else {
-                                    if (value.length >= 6) {
-                                      if (value.contains(RegExp('[0-9]'))) {
-                                        popUp(
-                                            'The title must NOT contain numbers characters!');
-                                      } else {
-                                        return null;
-                                      }
-                                    } else {
-                                      popUp(
-                                          'The lenght of the title must NOT be shorter than 6!');
-                                    }
-                                  }
-                                  return null;
-                                },
+                                validator: (value) => StringValidators.instance
+                                    .titleValidator(value),
                               ),
                               const SizedBox(height: 8),
                               TextFormField(
@@ -186,36 +171,8 @@ class _NoteModifyState extends State<NoteModify> {
                                     icon: Icon(Icons.note_add),
                                     hintText: 'Enter note content',
                                     labelText: 'Content'),
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    popUp('Note content has not been entered');
-                                  } else {
-                                    if (value.length <= 150) {
-                                      if (value[0].contains(RegExp('[A-Z]'))) {
-                                        if (value.contains('!') ||
-                                            value.contains('@') ||
-                                            value.contains('#') ||
-                                            //  value.contains('$')||
-                                            value.contains('%') ||
-                                            value.contains('^') ||
-                                            value.contains('&') ||
-                                            value.contains('*')) {
-                                          return null;
-                                        } else {
-                                          popUp(
-                                              'The content must contain special characters!');
-                                        }
-                                      } else {
-                                        popUp(
-                                            'The first letter of the conent must be capital!');
-                                      }
-                                    } else {
-                                      popUp(
-                                          'The lenght of the content must not exceed 150 characters!');
-                                    }
-                                  }
-                                  return null;
-                                },
+                                validator: (value) => StringValidators.instance
+                                    .contentValidator(value),
                               ),
                             ],
                           ),
@@ -225,13 +182,17 @@ class _NoteModifyState extends State<NoteModify> {
                           width: double.infinity,
                           height: 35,
                           child: ElevatedButton(
-                            onPressed: () => FormFieldValidator == null
-                                ? popUp('Processing, please wait')
-                                : createOrEditNote(
-                                    noteID: widget.noteID,
-                                    titleNote: titleController.text,
-                                    contentNote: contentController.text,
-                                  ),
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                createOrEditNote(
+                                  noteID: widget.noteID,
+                                  titleNote: titleController.text,
+                                  contentNote: contentController.text,
+                                );
+                              } else {
+                                popUp('Please fill the empty fields!');
+                              }
+                            },
                             style: ElevatedButton.styleFrom(
                                 primary: Theme.of(context).primaryColor),
                             child: const Text(
