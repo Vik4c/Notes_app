@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'views/note_list.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest_api_app1/router.dart';
+import 'package:rest_api_app1/views/note_list_screen.dart';
 
 void main() {
-  runApp(const App());
+  //provider scope is a must have with riverpod
+  runApp(const ProviderScope(child: App()));
 }
 
 class App extends StatelessWidget {
@@ -15,7 +18,8 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: const NoteList(title: 'List of notes'),
+      initialRoute: NoteListScreen.routePath,
+      onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings),
     );
   }
 }

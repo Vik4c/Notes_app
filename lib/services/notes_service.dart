@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:rest_api_app1/models/note.dart';
 import 'package:rest_api_app1/models/note_for_listing.dart';
 import 'package:http/http.dart' as http;
-import 'package:rest_api_app1/services/globals.dart' as globals;
+import 'package:rest_api_app1/globals.dart' as globals;
 import 'package:rest_api_app1/models/note_insert.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NoteService {
-  NoteService._instantiate();
-  static final NoteService instance = NoteService._instantiate();
   Future<List<NoteForListing>> getNotesList() async {
-    List<NoteForListing> list = [];
+    List<NoteForListing> listNotes = [];
     var endpoint = '${globals.coreAPI}/notes';
     var url = Uri.parse(endpoint);
     try {
@@ -19,10 +18,10 @@ class NoteService {
       if (response.statusCode == 200) {
         var notesDecoded = json.decode(response.body);
         for (var note in notesDecoded) {
-          list.add(NoteForListing.fromMap(note));
+          listNotes.add(NoteForListing.fromMap(note));
         }
       }
-      return list;
+      return listNotes;
     } catch (e) {
       return Future.error('An error has occured');
     }
@@ -129,3 +128,22 @@ class NoteService {
     }
   }
 }
+
+final noteServiceRepositoryProvider = Provider<NoteService>((ref) {
+  return NoteService();
+});
+
+final getNotesListFutureProvider =
+    FutureProvider.autoDispose<List<NoteForListing>>(
+  (ref) {
+    final getNotesListProvider = ref.watch(noteServiceRepositoryProvider);
+    return getNotesListProvider.getNotesList();
+  },
+);
+
+final getNoteFutureProvider = FutureProvider.autoDispose.family<Note?, String>(
+  (ref, noteId) {
+    final getNoteProvider = ref.watch(noteServiceRepositoryProvider);
+    return getNoteProvider.getNote(noteId);
+  },
+);
