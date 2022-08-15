@@ -7,9 +7,16 @@ class StringValidators {
       return 'Enter note title';
     } else if (value.isNotEmpty) {
       if (value.length >= 6) {
-        String pattern = '[0-9]';
-        var regex = RegExp(pattern);
-        if (!regex.hasMatch(value)) {
+        if (value.contains('0') ||
+            value.contains('1') ||
+            value.contains('2') ||
+            value.contains('3') ||
+            value.contains('4') ||
+            value.contains('5') ||
+            value.contains('6') ||
+            value.contains('7') ||
+            value.contains('8') ||
+            value.contains('9')) {
           return "Title must NOT contain numbers";
         }
       } else {

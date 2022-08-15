@@ -103,7 +103,7 @@ class _NoteModifyState extends State<NoteModify> {
       });
     } else {
       await NoteService.instance.createNote(note).then((value) {
-        if (value) {
+        if (!value) {
           ScaffoldMessenger.of(context)
               .showSnackBar(const SnackBar(
                   backgroundColor: Colors.orange,
